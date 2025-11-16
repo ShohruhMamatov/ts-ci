@@ -1,10 +1,22 @@
 // @ts-check
 
-import eslint from '@eslint/js';
-import { defineConfig } from 'eslint/config';
-import tseslint from 'typescript-eslint';
+import eslint from "@eslint/js";
+import tseslint from "typescript-eslint";
 
-export default defineConfig(
+export default tseslint.config(
+  // Base ESLint recommended rules
   eslint.configs.recommended,
-  tseslint.configs.recommended,
+
+  // TypeScript recommended rules
+  ...tseslint.configs.recommended,
+
+  {
+    files: ["**/*.ts"],
+    languageOptions: {
+      parser: tseslint.parser,
+      ecmaVersion: "latest",
+      sourceType: "module",
+    },
+    ignores: ["dist/**"],
+  }
 );
