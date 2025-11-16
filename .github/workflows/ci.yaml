@@ -1,29 +1,43 @@
-name: Transcript Manager CI
+name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [main, develop]
   pull_request:
-    branches: [ "main" ]
+    branches: [main, develop]
 
 jobs:
-  build:
+  lint-and-test:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+
+      - name: Run Prettier check
+        run: npx prettier --check "**/*.{ts,js,json,md}"
 
       - name: Run ESLint
-        run: npm run lint
+        run: npx eslint "**/*.ts"
 
-      - name: Run Tests (Jest)
+      - name: Run TypeScript compiler check
+        run: npx tsc --noEmit
+
+      - name: Run tests
         run: npm test
+
+      - name: Build
+        run: npx tsc
